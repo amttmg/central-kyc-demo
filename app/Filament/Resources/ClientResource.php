@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
 use App\Filament\Resources\ClientResource\RelationManagers;
+use App\Filament\Resources\ClientResource\RelationManagers\AccountRelationManager;
 use App\Models\Client;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -88,7 +89,7 @@ class ClientResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AccountRelationManager::class,
         ];
     }
 
