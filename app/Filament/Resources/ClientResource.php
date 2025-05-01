@@ -8,9 +8,12 @@ use App\Filament\Resources\ClientResource\RelationManagers\AccountRelationManage
 use App\Models\Client;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -32,33 +35,59 @@ class ClientResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            TextInput::make('name')->required(),
-            TextInput::make('email')
-                ->email()
-                ->unique(ignoreRecord: true)
-                ->required(),
-            TextInput::make('phone')
-                ->unique(ignoreRecord: true)
-                ->required(),
-            TextInput::make('citizenship_number')->required(),
-            DatePicker::make('citizenship_issued_date')->required(),
-            TextInput::make('citizenship_issued_place')->required(),
-            TextInput::make('father_name')->required(),
-            TextInput::make('mother_name')->required(),
-            TextInput::make('spouse_name'),
-            Textarea::make('permanent_address')->required(),
-            Textarea::make('temporary_address'),
-            TextInput::make('occupation'),
-            TextInput::make('income_source'),
-            TextInput::make('income_range'),
-            Select::make('marital_status')
-                ->options([
-                    'single' => 'Single',
-                    'married' => 'Married',
-                    'divorced' => 'Divorced',
-                    'widowed' => 'Widowed',
-                ])
-                ->nullable(),
+            Wizard::make([
+                Step::make('Personal Information')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextInput::make('name')->required(),
+                            TextInput::make('email')
+                                ->email()
+                                ->unique(ignoreRecord: true)
+                                ->required(),
+                            TextInput::make('phone')
+                                ->unique(ignoreRecord: true)
+                                ->required(),
+
+                        ]),
+                        Grid::make(3)->schema([
+                            TextInput::make('citizenship_number')->required(),
+                            DatePicker::make('citizenship_issued_date')->required(),
+                            TextInput::make('citizenship_issued_place')->required(),
+                        ])
+                    ]),
+
+                Step::make('Family Details')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextInput::make('father_name')->required(),
+                            TextInput::make('mother_name')->required(),
+                            TextInput::make('spouse_name'),
+                        ]),
+                    ]),
+
+                Step::make('Contact Information')
+                    ->schema([
+                        Textarea::make('permanent_address')->required(),
+                        Textarea::make('temporary_address'),
+                    ]),
+
+                Step::make('Others')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextInput::make('occupation'),
+                            TextInput::make('income_source'),
+                            TextInput::make('income_range'),
+                            Select::make('marital_status')
+                                ->options([
+                                    'single' => 'Single',
+                                    'married' => 'Married',
+                                    'divorced' => 'Divorced',
+                                    'widowed' => 'Widowed',
+                                ])
+                                ->nullable(),
+                        ]),
+                    ]),
+            ])->columnSpanFull()
         ]);
     }
 
