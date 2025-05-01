@@ -33,8 +33,13 @@ class ClientResource extends Resource
     {
         return $form->schema([
             TextInput::make('name')->required(),
-            TextInput::make('email')->email()->required(),
-            TextInput::make('phone')->required(),
+            TextInput::make('email')
+                ->email()
+                ->unique(ignoreRecord: true)
+                ->required(),
+            TextInput::make('phone')
+                ->unique(ignoreRecord: true)
+                ->required(),
             TextInput::make('citizenship_number')->required(),
             DatePicker::make('citizenship_issued_date')->required(),
             TextInput::make('citizenship_issued_place')->required(),

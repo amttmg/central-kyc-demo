@@ -20,7 +20,9 @@ class AccountRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                TextInput::make('account_number')->required(),
+                TextInput::make('account_number')
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 Forms\Components\Select::make('account_type')
                     ->options([
                         'saving' => 'Saving Account',
@@ -35,7 +37,7 @@ class AccountRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('id')
+            ->recordTitleAttribute('account_number')
             ->columns([
                 TextColumn::make('account_number'),
                 TextColumn::make('account_type'),
