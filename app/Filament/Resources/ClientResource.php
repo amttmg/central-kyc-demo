@@ -95,17 +95,13 @@ class ClientResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('Client Code')->searchable(),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('phone'),
                 TextColumn::make('citizenship_number'),
                 TextColumn::make('citizenship_issued_date')->date(),
-                BadgeColumn::make('marital_status')->colors([
-                    'primary' => 'single',
-                    'success' => 'married',
-                    'danger' => 'divorced',
-                    'warning' => 'widowed',
-                ]),
+              
             ])
             ->filters([
                 //
