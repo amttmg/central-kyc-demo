@@ -15,13 +15,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class ClientResource extends Resource
 {
@@ -101,13 +104,69 @@ class ClientResource extends Resource
                 TextColumn::make('phone'),
                 TextColumn::make('citizenship_number'),
                 TextColumn::make('citizenship_issued_date')->date(),
-              
+
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('Push')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->action(function ($record) {
+                        $targetConnection = DB::connection('central');
+                        $data = $record->toArray();
+                        unset($data['id'], $data['created_at'], $data['updated_at']);
+
+                        $existingClient = $targetConnection->table('clients')
+                            ->where('email', $data['email'])
+                            ->orWhere('phone', $data['phone'])
+                            ->first();
+
+                        if ($existingClient) {
+                            $targetConnection->table('clients')
+                                ->where('id', $existingClient->id)
+                                ->update($data);
+                        } else {
+                            $targetConnection->table('clients')->insert($data);
+                            $existingClient = $targetConnection->table('clients')
+                                ->where('email', $data['email'])
+                                ->orWhere('phone', $data['phone'])
+                                ->first();
+                        }
+
+                        $record->id = $existingClient->id;
+                        $record->save();
+                        $record->refresh();
+
+
+                        //sync accounts
+                        // Sync related accounts
+                        $accounts = $record->accounts; // assuming a relation: hasMany('App\Models\Account')
+
+                        foreach ($accounts as $account) {
+                            $accountData = $account->toArray();
+                            unset($accountData['id'], $accountData['created_at'], $accountData['updated_at']);
+                            $accountData['client_id'] = $existingClient->id;
+
+                            $existingAccount = $targetConnection->table('accounts')
+                                ->where('account_number', $accountData['account_number'])
+                                ->first();
+
+                            if ($existingAccount) {
+                                $targetConnection->table('accounts')
+                                    ->where('id', $existingAccount->id)
+                                    ->update($accountData);
+                            } else {
+                                $targetConnection->table('accounts')->insert($accountData);
+                            }
+                        }
+
+                        Notification::make()
+                            ->title('Client pushed successfully!')
+                            ->success()
+                            ->send();
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

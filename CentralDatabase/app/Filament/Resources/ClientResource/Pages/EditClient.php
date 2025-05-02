@@ -13,7 +13,12 @@ class EditClient extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            ///Actions\DeleteAction::make(),
         ];
+    }
+    protected function getFormActions(): array
+    {
+        // Return an empty array to remove all form action buttons (like "Save changes", "Cancel", etc.)
+        return [];
     }
 }

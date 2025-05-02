@@ -101,18 +101,18 @@ class ClientResource extends Resource
                 TextColumn::make('phone'),
                 TextColumn::make('citizenship_number'),
                 TextColumn::make('citizenship_issued_date')->date(),
-              
+
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
