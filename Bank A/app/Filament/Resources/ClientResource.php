@@ -112,6 +112,11 @@ class ClientResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Action::make('Push')
+                    ->requiresConfirmation()
+                    ->modalHeading('Confirm Push to Central Database')
+                    ->modalDescription('Are you sure you want to push this client to the central database?')
+                    ->modalSubmitActionLabel('Yes, Push')
+                    ->modalIcon('heroicon-o-arrow-up-tray')
                     ->icon('heroicon-o-paper-airplane')
                     ->action(function ($record) {
                         $targetConnection = DB::connection('central');
