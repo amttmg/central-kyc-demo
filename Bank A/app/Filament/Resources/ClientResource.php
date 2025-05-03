@@ -145,7 +145,7 @@ class ClientResource extends Resource
 
                             // Full path to central project's storage/app/public folder
                             $centralStoragePath = base_path('../CentralDatabase/storage/app/public/' . $data['img']);
-                           
+
                             // Ensure directory exists in central app
                             if (!file_exists(dirname($centralStoragePath))) {
                                 mkdir(dirname($centralStoragePath), 0755, true);
