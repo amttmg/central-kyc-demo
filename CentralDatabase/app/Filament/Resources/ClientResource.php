@@ -8,6 +8,7 @@ use App\Filament\Resources\ClientResource\RelationManagers\AccountRelationManage
 use App\Models\Client;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -38,6 +39,16 @@ class ClientResource extends Resource
             Wizard::make([
                 Step::make('Personal Information')
                     ->schema([
+                        Grid::make(3)->schema([
+                            FileUpload::make('img')
+                                ->label('Profile Picture')
+                                ->image()
+                                ->imageEditor()
+                                ->imagePreviewHeight('250')
+                                ->maxSize(1024) // in KB
+                                ->directory('profile-photos')
+                                ->required(),
+                        ]),
                         Grid::make(3)->schema([
                             TextInput::make('name')->required(),
                             TextInput::make('email')

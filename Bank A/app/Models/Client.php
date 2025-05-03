@@ -24,6 +24,7 @@ class Client extends Model
         'marital_status',
         'national_id',
         'dob',
+        'img'
     ];
 
     public function accounts()
