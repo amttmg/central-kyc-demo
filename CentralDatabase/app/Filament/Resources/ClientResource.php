@@ -55,7 +55,7 @@ class ClientResource extends Resource
                             TextInput::make('citizenship_issued_place')->required(),
                         ]),
                         Grid::make(3)->schema([
-
+                            TextInput::make('national_id')->label('National ID')->required(),
                             DatePicker::make('dob')->label('Date of birth')->required(),
 
                         ])
