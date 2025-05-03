@@ -138,6 +138,26 @@ class ClientResource extends Resource
                     ->action(function ($record) {
                         $targetConnection = DB::connection('central');
                         $data = $record->toArray();
+
+
+                        if (!empty($data['img'])) {
+                            $localPath = storage_path('app/public/' . $data['img']);
+
+                            // Full path to central project's storage/app/public folder
+                            $centralStoragePath = base_path('../CentralDatabase/storage/app/public/' . $data['img']);
+                           
+                            // Ensure directory exists in central app
+                            if (!file_exists(dirname($centralStoragePath))) {
+                                mkdir(dirname($centralStoragePath), 0755, true);
+                            }
+
+                            // Copy file if it exists
+                            if (file_exists($localPath)) {
+                                copy($localPath, $centralStoragePath);
+                            }
+                        }
+
+
                         unset($data['id'], $data['created_at'], $data['updated_at']);
 
                         $existingClient = $targetConnection->table('clients')
