@@ -22,6 +22,8 @@ class Client extends Model
         'income_source',
         'income_range',
         'marital_status',
+        'national_id',
+        'dob',
     ];
 
     public function accounts()

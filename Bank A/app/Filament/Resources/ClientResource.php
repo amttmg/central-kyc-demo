@@ -56,6 +56,11 @@ class ClientResource extends Resource
                             TextInput::make('citizenship_number')->required(),
                             DatePicker::make('citizenship_issued_date')->required(),
                             TextInput::make('citizenship_issued_place')->required(),
+                        ]),
+                        Grid::make(3)->schema([
+
+                            DatePicker::make('dob')->label('Date of birth')->required(),
+
                         ])
                     ]),
 
