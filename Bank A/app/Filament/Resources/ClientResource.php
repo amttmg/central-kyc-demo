@@ -178,7 +178,7 @@ class ClientResource extends Resource
                         }
 
                         $record->id = $existingClient->id;
-                        $record->save();
+                        //$record->save();
                         $record->refresh();
 
 

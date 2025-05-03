@@ -16,7 +16,7 @@ class ListClients extends ListRecords
         return [
             Actions\CreateAction::make()->icon('heroicon-o-plus'),
             Action::make('importClients')
-                ->label('Import Clients')
+                ->label('Import Clients from Central KYC System')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('primary')
                 ->url(route('filament.admin.resources.clients.import')),

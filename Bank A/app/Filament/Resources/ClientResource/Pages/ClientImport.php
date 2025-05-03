@@ -111,7 +111,6 @@ class ClientImport extends Page implements HasTable, HasForms
             Action::make('view')
                 ->label('View Details')
                 ->icon('heroicon-o-eye')
-                ->color('gray')
                 ->modalHeading(fn(CentralClient $record) => "Client Details: {$record->name}")
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Close')
@@ -208,7 +207,81 @@ class ClientImport extends Page implements HasTable, HasForms
                     'national_id' => $record->national_id,
                     'dob' => $record->dob,
                     'img' => $record->img,
-                ])
+                ]),
+            Action::make('Pull')
+                ->requiresConfirmation()
+                ->modalHeading('Confirm Pull from Central Database')
+                ->modalDescription('Are you sure you want to pull this client from central database? This will overwrite local data.')
+                ->modalSubmitActionLabel('Yes, Pull')
+                ->modalIcon('heroicon-o-arrow-down-tray')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(function (CentralClient $record) {
+                    try {
+                        DB::transaction(function () use ($record) {
+                            // Get data from central database
+                            $centralData = $record->toArray();
+
+                            // Handle image transfer if exists
+                            if (!empty($centralData['img'])) {
+                                $centralImagePath = base_path('../CentralDatabase/storage/app/public/' . $centralData['img']);
+                                $localImagePath = storage_path('app/public/' . $centralData['img']);
+
+                                // Ensure local directory exists
+                                if (!file_exists(dirname($localImagePath))) {
+                                    mkdir(dirname($localImagePath), 0755, true);
+                                }
+
+                                // Copy image if exists in central
+                                if (file_exists($centralImagePath)) {
+                                    copy($centralImagePath, $localImagePath);
+                                }
+                            }
+
+                            // Remove unwanted fields
+                            unset($centralData['id'], $centralData['created_at'], $centralData['updated_at']);
+
+                            // Find or create local client
+                            $localClient = Client::where('email', $centralData['email'])
+                                ->orWhere('phone', $centralData['phone'])
+                                ->first();
+
+                            if ($localClient) {
+                                $localClient->update($centralData);
+                            } else {
+                                $localClient = Client::create($centralData);
+                            }
+
+                            // // Sync accounts from central to local
+                            // $centralAccounts = $record->accounts;
+
+                            // foreach ($centralAccounts as $centralAccount) {
+                            //     $accountData = $centralAccount->toArray();
+                            //     unset($accountData['id'], $accountData['created_at'], $accountData['updated_at']);
+                            //     $accountData['client_id'] = $localClient->id;
+
+                            //     $localAccount = Account::where('account_number', $accountData['account_number'])
+                            //         ->first();
+
+                            //     if ($localAccount) {
+                            //         $localAccount->update($accountData);
+                            //     } else {
+                            //         Account::create($accountData);
+                            //     }
+                            // }
+
+                            Notification::make()
+                                ->title('Client pulled successfully!')
+                                ->success()
+                                ->send();
+                        });
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error pulling client')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                })
         ];
     }
 }
