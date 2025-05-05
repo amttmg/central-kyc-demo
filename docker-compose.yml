@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  central:
+    build:
+      context: ./CentralDatabase
+    container_name: central
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./CentralDatabase:/var/www
+    working_dir: /var/www
+    command: >
+      sh -c "composer install &&
+             php artisan key:generate &&
+             php artisan migrate --force &&
+             php artisan db:seed --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+    environment:
+      - APP_ENV=local
+    depends_on:
+      - mysql
+
+  banka:
+    build:
+      context: ./BankA
+    container_name: banka
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./BankA:/var/www
+    working_dir: /var/www
+    command: >
+      sh -c "composer install &&
+             php artisan key:generate &&
+             php artisan migrate --force &&
+             php artisan db:seed --force &&
+             php artisan serve --host=0.0.0.0 --port=8001"
+    environment:
+      - APP_ENV=local
+    depends_on:
+      - mysql
+
+  bankb:
+    build:
+      context: ./BankB
+    container_name: bankb
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./BankB:/var/www
+    working_dir: /var/www
+    command: >
+      sh -c "composer install &&
+             php artisan key:generate &&
+             php artisan migrate --force &&
+             php artisan db:seed --force &&
+             php artisan serve --host=0.0.0.0 --port=8002"
+    environment:
+      - APP_ENV=local
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
